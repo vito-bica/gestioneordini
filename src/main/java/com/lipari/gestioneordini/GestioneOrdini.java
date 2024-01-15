@@ -16,52 +16,21 @@ import com.lipari.gestioneordini.View.ViewOrder.OrderView;
 import com.lipari.gestioneordini.View.UserView.UserView;
 
 public class GestioneOrdini {
-    private static Integer id_count = 0;
-    private static Integer id_count_product = 0;
-//    private static Integer id_count_order = 0;
-    
-//    private static HashMap<Integer, User> users = new HashMap<>();
-//    private static HashMap<Integer, Item> items = new HashMap<>();
-//    private static HashMap<Integer, Order> orders = new HashMap<>();
-//    private static HashMap<Integer, String> address_list = new HashMap<>();
-//    private static ItemView iv = new ItemView();
     private static UserView uv = new UserView();
     private static OrderView ov = new OrderView();
     private static ProductView pv = new ProductView();
     private static CartItemView civ = new CartItemView();
     private static AddressView av = new AddressView();
     
-//    static User admin1 = new User(++id_count,"Mattia","Ruberto","m.ruberto","?TestPassword?","mattia.ruberto@liparipeople.com",1);
-//    static User admin2 = new User(++id_count,"Vito","Bica","v.bica","!TestPassword!","vito.bica@liparipeople.com",1);
-    
-//    static Item item1 = new Item(++id_count_product,id_count_product,"Prodotto 1",3,15.00);
-//    static Item item2 = new Item(++id_count_product,id_count_product,"Prodotto 3",5,20.00);
-    // L'id_count è pre-incrementato per permettere al programma di gestire id incrementali in runtime come farebbe la chiave primaria di un DBMS con auto-increment.
-    // E' stato scelto il pre-incremento per consentire ad un account di tipo admin di visualizzare il numero di utenti registrati in piattaforma.
-    // E' possibile farlo anche con il post-incremento ricordandosi però di diminuire il conteggio finale di 1 in quanto ad ogni nuova registrazione
-    // l'id_count viene incrementato preventivamente e non rappresenta il numero reale di utenti registrati.
-    
+
     public static void main(String[] args) throws SQLException {
         Scanner scanner = new Scanner(System.in).useLocale(Locale.US);
         boolean logged = false;
         Integer user_id = null;
         boolean quit = false;
         
-//        users.put(1, admin1);
-//        users.put(2,admin2);
-        
-//        items.put(item1.getId(), item1);
-//        items.put(item2.getId(), item2);
-        
         Dbms database = new Dbms();
         
-        
-//        try {
-//			System.out.println(database.getConnection().isClosed());
-//        	database.selectUsers();
-//		} catch (SQLException e) {
-//			e.printStackTrace();
-//		}
         while (!quit) {
         	while(!logged){
                 System.out.println("Welcome,\nPlease choose an action to perform between:\n"
@@ -107,12 +76,7 @@ public class GestioneOrdini {
                                 check_email = true;
                             }
                         }
-                        //Creazione di un nuovo utente.
-//                        User new_user = new User(++id_count,name,surname,username,password,email,0);
-//                        //Aggiunta dell'utente alla lista degli utenti registrati.
-//                        uv.printUserInfo(new_user);
-//                        System.out.println("\nAdded new user with this information.\n");
-//                        users.put(id_count,new_user);
+                       
                         User user = new User();
                         user.setName(name);
                         user.setSurname(surname);
@@ -139,35 +103,20 @@ public class GestioneOrdini {
                             } else {
                             	System.out.println("Dati non corretti");
                             }
-//                            for(User user : users.values()){
-//                                if(user.getUsername().equals(username) && user.getPassword().equals(password)){
-//                                        user_id = user.getId();
-//                                        logged = true;
-//                                        uv.printUserInfo(user);
-//                                    }
-//                                    break;
-//                                }
                             }
                         }
                     case "3" -> {
                         System.out.println("Goodbye, program will now close.");
                         System.exit(0);
                     }
-                    default -> System.out.println("Invalid command entered. Please try again.");
-                        
-                    
-                      
+                    default -> System.out.println("Invalid command entered. Please try again.");    
                 }
             }
             if (logged) {
             	User current_user = database.getUserByID(user_id);
             	
             	uv.printUserInfo(current_user);
-            	
-//            	User current_user = users.get(user_id);
-//            	Integer count_order_user;
-            	
-            	
+
     	        while(logged){
     	            System.out.println("\nYou're logged in as: " + current_user.getUsername()+ ".\nChoose an action to perform:\n1)Add Item\n2)Remove Item\n3)New Order\n4)Cancel Order\n5)History of Orders\n6)LogOut\nInput:");
     	            String command = scanner.nextLine();
@@ -187,25 +136,14 @@ public class GestioneOrdini {
                                 p.setPrice(price);
                                 database.insertProduct(p, user_id);
                                 break;
-//                                Item item = new Item(user_id,++id_count_product,description,qty,price);
-                                
-                                //                            items.put(id_count_product, item);
                             }
     	                case "2" -> {
                                 boolean removed = false;
                                 while(!removed){
-//                                    iv.printItems(items);
                                     System.out.println("Choose the product to remove by typing its Product ID: ");
                                     Integer id = scanner.nextInt();
                                     scanner.nextLine();
                                     removed = database.removeProduct(id);
-//                                    if(items.containsKey(id)){
-//                                        items.remove(id);
-//                                        removed = true;
-//                                        System.out.println("Item removed succesfully.");
-//                                    }else{
-//                                        System.out.println("Invalid Product ID. Try again.\n");
-//                                    }
                                     if (removed) {
                                     	System.out.println("Item removed succesfully.");
                                     } else {
@@ -221,24 +159,13 @@ public class GestioneOrdini {
                                 Integer qty;
                                 HashMap<Integer,Product> products = new HashMap<Integer, Product>();
                                 while(!isComplete) {
-                                    
-                                    
-                                    
+
                                     System.out.println("STORAGE Product list:");
-                                    
-                                
-//                                    for (Item i : items.values()) {
-//                                        System.out.println("\n"+i.toString());
-//                                    }
-                                    
                                     products = database.getProducts();
                                     
                                     for (Product p : products.values()) {
                                     	pv.printProductInfo(p);
                                     }
-                                    
-                                    
-                                    
                                     
                                     System.out.println("\nChoose the product to add in the cart by typing its Product ID: ");
                                     Integer id = scanner.nextInt();
@@ -251,20 +178,7 @@ public class GestioneOrdini {
                                         System.out.println("Choose the quantity to add: ");
                                         qty = scanner.nextInt();
                                         scanner.nextLine();
-                                        //Verifica se il magazzino contiene la quantità richiesta per il prodotto
-//                                        if (current_item.getQuantity()>=qty) {
-//                                            if (cart.containsKey(id)) {
-//                                                cart.get(id).setQuantity(cart.get(id).getQuantity()+qty);
-//                                            }
-//                                            else {
-//                                                Item cart_item = new Item(current_item.getId(),current_item.getId_product(),current_item.getDescription(),qty,current_item.getPrice());
-//                                                cart.put(id, cart_item);
-//                                            }
-//                                            current_item.setQuantity(current_item.getQuantity()-qty);
-//                                        }
-//                                        else {
-//                                            System.out.println("Error: The quantity available for the product is: "+current_item.getQuantity());
-//                                        }
+                                        
                                         if (avaible_qty>=qty) {
                                         	if (cart.containsKey(id)) {
                                         		CartItem cart_item = cart.get(id);
@@ -272,8 +186,6 @@ public class GestioneOrdini {
                                         		price_cart+=qty*products.get(id).getPrice();
                                         		System.out.println("Il prodotto è già presente nel carrello! "
                                         				+ "La quantità selezionata è stata aggiunta!");
-                                        		
-                                        		
                                         	} else {
                                         		CartItem cart_item = new CartItem(id,qty);
                                         		cart.put(id, cart_item);
@@ -297,35 +209,7 @@ public class GestioneOrdini {
                                     String command2 = scanner.nextLine();
                                     switch(command2) {
                                         case "2" -> {
-//                                            System.out.println("Select the address from those available or enter a new one: ");
-//                                            System.out.println("0 - Enter a new address");
-//                                            //Visualizza indirizzi usati in precedenza dall'utente
-//                                            Integer id_count_address = 0;
-//                                            for (Order o : orders.values()) {
-//                                                if (current_user.getId().equals(o.getId_user())) {
-//                                                    address_list.put(++id_count_address,o.getAddress());
-//                                                    System.out.println(id_count_address+" - "+o.getAddress());
-//                                                }
-//                                            }
-//                                            String address_command = scanner.nextLine();
-//                                            if (address_command.equals("0")){
-//                                                System.out.println("Enter the new address:\nInput: ");
-//                                                address = scanner.nextLine();
-//                                                address_list.put(id_count_address, address);
-//                                            }
-//                                            else if (address_list.containsKey(Integer.valueOf(address_command))){
-//                                                address = address_list.get(Integer.valueOf(address_command));
-//                                            }
-//                                            else {
-//                                                System.out.println("Invalid command!");
-//                                            }
-//                                            
-//                                            isComplete=true;
-//                                            //orders.put(++id_count_order, new Order(current_user.getId(), address, cart));
-//                                            System.out.println(orders.get(id_count_order).toString());
-//                                            System.out.println("Order placed successfully!");
                                         	if (!cart.isEmpty()) {
-                                        		
                                         		Order order = new Order();
                                         		Integer temp_address = 0;
                                         		HashMap<Integer, Address> usedAddress = new HashMap<Integer, Address>();
@@ -368,7 +252,7 @@ public class GestioneOrdini {
                                         			address.setCity(city);
                                         			address.setCAP(cap);
                                         			
-                                        			boolean isAdded = database.insertAddress(address, user_id);
+                                        			database.insertAddress(address, user_id);
                                         			usedAddress.put(++temp_address, address);
                                         			
                                         			
@@ -403,15 +287,6 @@ public class GestioneOrdini {
                                         		}
                                         		
                                         		
-                                        		
-//                                              Integer id_count_address = 0;
-//                                              for (Order o : orders.values()) {
-//                                                  if (current_user.getId().equals(o.getId_user())) {
-//                                                      address_list.put(++id_count_address,o.getAddress());
-//                                                      System.out.println(id_count_address+" - "+o.getAddress());
-//                                                  }
-//                                              }
-                                        		
                                         	} else {
                                         		System.out.println("Errore: Non è possibile creare l'ordine se il carrello è vuoto!");
                                         	}
@@ -421,13 +296,9 @@ public class GestioneOrdini {
                                 break;
                             }
     	                case "4" -> {
-//                                count_order_user = 0;
-                                
                                 System.out.println("Choose the order to cancel\nInput: ");
                                 Integer order_id = scanner.nextInt();
                                 scanner.nextLine();
-                                
-                                
                                 
                                 boolean removed = database.removeOrderByID(user_id,order_id);
                                 
@@ -436,44 +307,12 @@ public class GestioneOrdini {
                                 } else {
                                 	System.out.println("L'ordine selezionato non è stato trovato!");
                                 }
-                                
-                                
-//                                for (Order o : orders.values()) {
-//                                    if (current_user.getId().equals(o.getId_user())){
-//                                        count_order_user++;
-//                                        System.out.println(o.toString());
-//                                    }
-//                                }
-//                                
-//                                if (count_order_user==0) {
-//                                    System.out.println("No orders were found");
-//                                }
-//                                else {
-//                                    System.out.println("Choose the order to cancel\nInput: ");
-//                                    String remove_order = scanner.nextLine();
-//                                    if (orders.containsKey(Integer.valueOf(remove_order))){
-//                                        orders.remove(Integer.valueOf(remove_order));
-//                                        System.out.println("Order canceled successfully!");
-//                                    }
-//                                    else {
-//                                        System.out.println("Invalid order ID!");
-//                                    }
-//                                    
-//                                }
                                 break;
                             }
     	                case "5" -> {
     	                		HashMap<Integer, Order> orders = new HashMap<Integer, Order>();
     	                		
-//                                count_order_user = 0;
-                                
                                 orders = database.getOrdersByUserID(user_id);
-                                
-                                
-                                
-                                
-                                
-                                
                                 
                                 if (orders.isEmpty()) {
                                 	System.out.println("Non è stato trovato nessun ordine!");
@@ -490,17 +329,6 @@ public class GestioneOrdini {
                                     }
                                 	
                                 }
-                                
-
-//                                for (Order o : orders.values()) {
-//                                    if (current_user.getId().equals(o.getId_user())){
-//                                        count_order_user++;
-//                                        System.out.println(o.toString());
-//                                    }
-//                                }
-//                                if (count_order_user==0) {
-//                                    System.out.println("No orders were found");
-//                                }
                                 break;
                             }
     	                case "6" -> {
