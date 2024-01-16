@@ -134,6 +134,8 @@ public class GestioneOrdini {
     	            		+ "11)Show the product that gave the least profit\n"
     	            		+ "12)Show the user who placed the most orders\n"
     	            		+ "13)Show the user who placed the fewest orders\n"
+    	            		+ "14)Show the user with the most spending\n"
+    	            		+ "15)Show the user with the least spending\n"
     	            		+ "100)LogOut\n"
     	            		+ "Input:");
     	            String command = scanner.nextLine();
@@ -465,6 +467,40 @@ public class GestioneOrdini {
     	                		for (User user : users) {
     	                			uv.printBasicUserInfo(user);
         	                		System.out.println("Number of orders placed: " + qty_orders);
+    	                		}
+    	                	}
+    	                	break;
+    	                }
+    	                case "14" -> {
+    	                	HashMap<Double,ArrayList<User>> user_highest_spending = new HashMap<Double,ArrayList<User>>();
+    	                	user_highest_spending = database.getUserHighestSpending();
+    	            		Double highest_spending = 0.0;
+    	            		
+    	            		for (Double spent : user_highest_spending.keySet()) {
+    	            			highest_spending = spent;
+    	                	}
+    	                	
+    	                	for (ArrayList<User> users : user_highest_spending.values()) {
+    	                		for (User user : users) {
+    	                			uv.printBasicUserInfo(user);
+        	                		System.out.println("Total spending: " + highest_spending);
+    	                		}
+    	                	}
+    	                	break;
+    	                }
+    	                case "15" -> {
+    	                	HashMap<Double,ArrayList<User>> user_least_spending = new HashMap<Double,ArrayList<User>>();
+    	                	user_least_spending = database.getUserLeastSpending();
+    	            		Double least_spending = 0.0;
+    	            		
+    	            		for (Double spent : user_least_spending.keySet()) {
+    	            			least_spending = spent;
+    	                	}
+    	                	
+    	                	for (ArrayList<User> users : user_least_spending.values()) {
+    	                		for (User user : users) {
+    	                			uv.printBasicUserInfo(user);
+        	                		System.out.println("Total spending: " + least_spending);
     	                		}
     	                	}
     	                	break;

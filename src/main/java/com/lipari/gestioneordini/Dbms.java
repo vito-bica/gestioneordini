@@ -358,6 +358,66 @@ public class Dbms {
 		
 	}
 	
+	public HashMap<Double,ArrayList<User>> getUserHighestSpending() throws SQLException{
+		HashMap<Double,ArrayList<User>> user_highest_spending = new HashMap<Double, ArrayList<User>>();
+		ArrayList<User> users = new ArrayList<User>();
+		Double highest_spending = 0.0;
+		
+		String query = "SELECT u.id, u.name, u.surname, u.username, u.email, SUM(o.price) as total_spending "
+				+ "FROM user u INNER JOIN t_order o ON u.id=o.id_user GROUP BY u.id "
+				+ "HAVING total_spending=("
+				+ "SELECT MAX(total_spending) as max_spending FROM("
+				+ "SELECT SUM(o.price) as total_spending FROM t_order o GROUP BY o.id_user) AS list_total_spending)";
+		
+		PreparedStatement ps = getConnection().prepareStatement(query);
+		
+		ResultSet rs = ps.executeQuery();
+		
+		while(rs.next()) {
+			User u = new User();
+			u.setId(rs.getInt(1));
+			u.setName(rs.getString(2));
+			u.setSurname(rs.getString(3));
+			u.setUsername(rs.getString(4));
+			u.setEmail(rs.getString(5));
+			highest_spending=rs.getDouble(6);
+			
+			users.add(u);
+		}
+		user_highest_spending.put(highest_spending, users);
+		return user_highest_spending;
+	}
+	
+	public HashMap<Double,ArrayList<User>> getUserLeastSpending() throws SQLException{
+		HashMap<Double,ArrayList<User>> user_least_spending = new HashMap<Double, ArrayList<User>>();
+		ArrayList<User> users = new ArrayList<User>();
+		Double least_spending = 0.0;
+		
+		String query = "SELECT u.id, u.name, u.surname, u.username, u.email, SUM(o.price) as total_spending "
+				+ "FROM user u INNER JOIN t_order o ON u.id=o.id_user GROUP BY u.id "
+				+ "HAVING total_spending=("
+				+ "SELECT MIN(total_spending) as max_spending FROM("
+				+ "SELECT SUM(o.price) as total_spending FROM t_order o GROUP BY o.id_user) AS list_total_spending)";
+		
+		PreparedStatement ps = getConnection().prepareStatement(query);
+		
+		ResultSet rs = ps.executeQuery();
+		
+		while(rs.next()) {
+			User u = new User();
+			u.setId(rs.getInt(1));
+			u.setName(rs.getString(2));
+			u.setSurname(rs.getString(3));
+			u.setUsername(rs.getString(4));
+			u.setEmail(rs.getString(5));
+			least_spending=rs.getDouble(6);
+			
+			users.add(u);
+		}
+		user_least_spending.put(least_spending, users);
+		return user_least_spending;
+	}
+	
 	
 	//USER QUERY
 	
