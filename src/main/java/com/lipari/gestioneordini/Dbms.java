@@ -8,7 +8,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.UUID;
 
 import com.lipari.gestioneordini.Model.Address.Address;
@@ -111,6 +113,248 @@ public class Dbms {
 			p = new Product(id, description, quantity, price);	
 		}
 		return p;
+		
+	}
+	
+	public LinkedHashMap<Integer, Product> getProductsOrderByPriceASC() throws SQLException{
+		LinkedHashMap<Integer, Product> products = new LinkedHashMap<Integer, Product>();
+		
+		String query = "SELECT id, description, quantity, price FROM product ORDER BY price";
+		
+		PreparedStatement ps = getConnection().prepareStatement(query);
+		
+		ResultSet rs = ps.executeQuery();
+		
+		while(rs.next()) {
+			Product p = new Product();
+			p.setId(rs.getInt(1));
+			p.setDescription(rs.getString(2));
+			p.setQuantity(rs.getInt(3));
+			p.setPrice(rs.getDouble(4));
+			
+			products.put(p.getId(), p);
+		}
+		return products;
+	}
+	
+	public LinkedHashMap<Integer, Product> getProductsOrderByPriceDESC() throws SQLException{
+		LinkedHashMap<Integer, Product> products = new LinkedHashMap<Integer, Product>();
+		
+		String query = "SELECT id, description, quantity, price FROM product ORDER BY price DESC";
+		
+		PreparedStatement ps = getConnection().prepareStatement(query);
+		
+		ResultSet rs = ps.executeQuery();
+		
+		while(rs.next()) {
+			Product p = new Product();
+			p.setId(rs.getInt(1));
+			p.setDescription(rs.getString(2));
+			p.setQuantity(rs.getInt(3));
+			p.setPrice(rs.getDouble(4));
+			
+			products.put(p.getId(), p);
+		}
+		return products;
+	}
+	
+	public HashMap<Integer,ArrayList<Product>> getBestSellerProduct() throws SQLException {
+		HashMap<Integer,ArrayList<Product>> products_qty = new HashMap<Integer, ArrayList<Product>>();
+		ArrayList<Product> products = new ArrayList<Product>();
+		Integer qty_selled = 0;
+		
+		
+		
+		String query = "SELECT p.id, p.description, p.quantity, p.price, SUM(pio.quantity) as somma "
+				+ "FROM product_in_order pio INNER JOIN product p "
+				+ "ON p.id=pio.id_product "
+				+ "group by id_product "
+				+ "having somma in (SELECT Max(somma) as max_somma FROM ("
+				+ "SELECT id_product, SUM(pio.quantity) as somma "
+				+ "FROM product_in_order pio INNER JOIN product p ON p.id=pio.id_product "
+				+ "group by id_product) AS tab)";
+		
+		PreparedStatement ps = getConnection().prepareStatement(query);
+		
+		ResultSet rs = ps.executeQuery();
+		
+		
+		while(rs.next()) {
+			Product p = new Product();
+			p.setId(rs.getInt(1));
+			p.setDescription(rs.getString(2));
+			p.setQuantity(rs.getInt(3));
+			p.setPrice(rs.getDouble(4));
+			qty_selled = rs.getInt(5);
+			
+			products.add(p);
+		}
+		products_qty.put(qty_selled, products);
+		return products_qty;
+	}
+	
+	public HashMap<Integer,ArrayList<Product>> getLeastSellerProduct() throws SQLException {
+		HashMap<Integer,ArrayList<Product>> products_qty = new HashMap<Integer, ArrayList<Product>>();
+		ArrayList<Product> products = new ArrayList<Product>();
+		Integer qty_selled = 0;
+		
+		String query = "SELECT p.id, p.description, p.quantity, p.price, SUM(pio.quantity) as somma "
+				+ "FROM product_in_order pio, product p "
+				+ "WHERE p.id=pio.id_product "
+				+ "group by id_product "
+				+ "having somma in ("
+				+ "SELECT Min(somma) as max_somma FROM ("
+				+ "SELECT id_product, SUM(pio.quantity) as somma "
+				+ "FROM product_in_order pio, product p "
+				+ "WHERE p.id=pio.id_product "
+				+ "group by id_product) AS tab)";
+		
+		PreparedStatement ps = getConnection().prepareStatement(query);
+		
+		ResultSet rs = ps.executeQuery();
+		
+		while(rs.next()) {
+			Product p = new Product();
+			p.setId(rs.getInt(1));
+			p.setDescription(rs.getString(2));
+			p.setQuantity(rs.getInt(3));
+			p.setPrice(rs.getDouble(4));
+			qty_selled = rs.getInt(5);
+			
+			products.add(p);
+		}
+		products_qty.put(qty_selled, products);
+		return products_qty;
+	}
+	
+	
+	public HashMap<Double,ArrayList<Product>> getMostProfictProduct() throws SQLException{
+		HashMap<Double,ArrayList<Product>> products_profit = new HashMap<Double,ArrayList<Product>>();
+		ArrayList<Product> products = new ArrayList<Product>();
+		Double most_profit = 0.0;
+		
+		String query = "SELECT p.id,p.description, p.quantity, p.price, (p.price*tab1.somma) as profit FROM product p INNER JOIN ("
+				+ "SELECT id_product, SUM(quantity) as somma FROM product_in_order pio group by pio.id_product) as tab1 "
+				+ "ON p.id=tab1.id_product "
+				+ "HAVING profit=(SELECT MAX(p.price*tab1.somma) as max_profit FROM product p INNER JOIN ("
+				+ "SELECT id_product, SUM(quantity) as somma FROM product_in_order pio group by pio.id_product) as tab1 "
+				+ "ON p.id=tab1.id_product)";
+		
+		PreparedStatement ps = getConnection().prepareStatement(query);
+		
+		ResultSet rs = ps.executeQuery();
+		
+		while(rs.next()) {
+			Product p = new Product();
+			
+			p.setId(rs.getInt(1));
+			p.setDescription(rs.getString(2));
+			p.setQuantity(rs.getInt(3));
+			p.setPrice(rs.getDouble(4));
+			most_profit = rs.getDouble(5);
+			
+			products.add(p);
+		}
+		products_profit.put(most_profit, products);
+		return products_profit;
+	}
+	
+	public HashMap<Double,ArrayList<Product>> getLeastProfictProduct() throws SQLException{
+		HashMap<Double,ArrayList<Product>> products_profit = new HashMap<Double,ArrayList<Product>>();
+		ArrayList<Product> products = new ArrayList<Product>();
+		Double least_profit = 0.0;
+		
+		String query = "SELECT p.id,p.description, p.quantity, p.price, (p.price*tab1.somma) as profit FROM product p INNER JOIN ("
+				+ "SELECT id_product, SUM(quantity) as somma FROM product_in_order pio group by pio.id_product) as tab1 "
+				+ "ON p.id=tab1.id_product "
+				+ "HAVING profit=(SELECT MIN(p.price*tab1.somma) as min_profit FROM product p INNER JOIN ("
+				+ "SELECT id_product, SUM(quantity) as somma FROM product_in_order pio group by pio.id_product) as tab1 "
+				+ "ON p.id=tab1.id_product)";
+		
+		PreparedStatement ps = getConnection().prepareStatement(query);
+		
+		ResultSet rs = ps.executeQuery();
+		
+		while(rs.next()) {
+			Product p = new Product();
+			
+			p.setId(rs.getInt(1));
+			p.setDescription(rs.getString(2));
+			p.setQuantity(rs.getInt(3));
+			p.setPrice(rs.getDouble(4));
+			least_profit = rs.getDouble(5);
+			
+			products.add(p);
+		}
+		products_profit.put(least_profit, products);
+		return products_profit;
+	}
+	
+	public HashMap<Integer,ArrayList<User>> getUserWithMostOrder() throws SQLException{
+		HashMap<Integer,ArrayList<User>> user_with_most_order = new HashMap<Integer,ArrayList<User>>();
+		ArrayList<User> users = new ArrayList<User>();
+		Integer qty_orders = 0;
+		
+		String query = "select u.id, u.name, u.surname, u.username, u.email, COUNT(*) as qty_orders FROM user u INNER JOIN t_order o "
+				+ "ON u.id=o.id_user group by u.id "
+				+ "HAVING qty_orders=("
+				+ "SELECT MAX(qty_orders) FROM("
+				+ "select COUNT(*) as qty_orders FROM user u INNER JOIN t_order o ON u.id=o.id_user "
+				+ "group by u.id) AS num_orders_per_user)";
+		
+		PreparedStatement ps = getConnection().prepareStatement(query);
+		
+		ResultSet rs = ps.executeQuery();
+		
+		while (rs.next()) {
+			User u = new User();
+			u.setId(rs.getInt(1));
+			u.setName(rs.getString(2));
+			u.setSurname(rs.getString(3));
+			u.setUsername(rs.getString(4));
+			u.setEmail(rs.getString(5));
+			qty_orders=rs.getInt(6);
+			
+			users.add(u);
+		}
+		
+		user_with_most_order.put(qty_orders, users);
+		
+		return  user_with_most_order;
+		
+	}
+	
+	public HashMap<Integer,ArrayList<User>> getUserWithLeastOrder() throws SQLException{
+		HashMap<Integer,ArrayList<User>> user_with_least_order = new HashMap<Integer,ArrayList<User>>();
+		ArrayList<User> users = new ArrayList<User>();
+		Integer qty_orders = 0;
+		
+		String query = "select u.id, u.name, u.surname, u.username, u.email, COUNT(*) as qty_orders FROM user u INNER JOIN t_order o "
+				+ "ON u.id=o.id_user group by u.id "
+				+ "HAVING qty_orders=("
+				+ "SELECT MIN(qty_orders) FROM("
+				+ "select COUNT(*) as qty_orders FROM user u INNER JOIN t_order o ON u.id=o.id_user "
+				+ "group by u.id) AS num_orders_per_user)";
+		
+		PreparedStatement ps = getConnection().prepareStatement(query);
+		
+		ResultSet rs = ps.executeQuery();
+		
+		while (rs.next()) {
+			User u = new User();
+			u.setId(rs.getInt(1));
+			u.setName(rs.getString(2));
+			u.setSurname(rs.getString(3));
+			u.setUsername(rs.getString(4));
+			u.setEmail(rs.getString(5));
+			qty_orders=rs.getInt(6);
+			
+			users.add(u);
+		}
+		
+		user_with_least_order.put(qty_orders, users);
+		
+		return  user_with_least_order;
 		
 	}
 	

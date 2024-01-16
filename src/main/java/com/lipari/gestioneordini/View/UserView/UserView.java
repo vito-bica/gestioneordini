@@ -19,6 +19,17 @@ public class UserView {
 							"\nRole: "+ this.role);
 	}
 	
+	public void printBasicUserInfo(User user) {
+		System.out.println("\nUser information:"+
+							"\nID: "+user.getId()+
+							"\nName: "+user.getName()+
+							"\nSurname: "+user.getSurname()+
+							"\nUsername: "+user.getUsername()+
+							"\nEmail: "+user.getEmail());
+	}
+	
+	
+	
 	
 
 }

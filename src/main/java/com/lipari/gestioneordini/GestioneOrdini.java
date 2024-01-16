@@ -2,6 +2,8 @@ package com.lipari.gestioneordini;
 
 import java.sql.SQLException;
 import java.util.*;
+import java.util.Map.Entry;
+
 import com.lipari.gestioneordini.Controller.Validator.Validator;
 import com.lipari.gestioneordini.Model.User.User;
 import com.lipari.gestioneordini.Model.Address.Address;
@@ -118,7 +120,22 @@ public class GestioneOrdini {
             	uv.printUserInfo(current_user);
 
     	        while(logged){
-    	            System.out.println("\nYou're logged in as: " + current_user.getUsername()+ ".\nChoose an action to perform:\n1)Add Item\n2)Remove Item\n3)New Order\n4)Cancel Order\n5)History of Orders\n6)LogOut\nInput:");
+    	            System.out.println("\nYou're logged in as: " + current_user.getUsername()+ ".\nChoose an action to perform:\n"
+    	            		+ "1)Add Item\n"
+    	            		+ "2)Remove Item\n"
+    	            		+ "3)New Order\n"
+    	            		+ "4)Cancel Order\n"
+    	            		+ "5)History of Orders\n"
+    	            		+ "6)Show products sorted by price ASC\n"
+    	            		+ "7)Show products sorted by price DESC\n"
+    	            		+ "8)Show the best-selling product\n"
+    	            		+ "9)Show the least-selling product\n"
+    	            		+ "10)Show the product that gave the most profit\n"
+    	            		+ "11)Show the product that gave the least profit\n"
+    	            		+ "12)Show the user who placed the most orders\n"
+    	            		+ "13)Show the user who placed the fewest orders\n"
+    	            		+ "100)LogOut\n"
+    	            		+ "Input:");
     	            String command = scanner.nextLine();
     	            switch(command){
     	                case "1" -> {
@@ -332,6 +349,127 @@ public class GestioneOrdini {
                                 break;
                             }
     	                case "6" -> {
+    	                	LinkedHashMap<Integer, Product> products = new LinkedHashMap<Integer, Product>();
+    	                	products = database.getProductsOrderByPriceASC();
+    	                	
+    	                	for (Product product : products.values()) {
+    	                		pv.printProductInfo(product);
+    	                	}
+    	                	break;
+    	                }
+    	                case "7" -> {
+    	                	LinkedHashMap<Integer, Product> products = new LinkedHashMap<Integer, Product>();
+    	                	products = database.getProductsOrderByPriceDESC();
+    	                	
+    	                	for (Product product : products.values()) {
+    	                		pv.printProductInfo(product);
+    	                	}
+    	                	break;
+    	                }
+    	                case "8" -> {
+    	                	HashMap<Integer,ArrayList<Product>> products_qty = new HashMap<Integer,ArrayList<Product>>();
+    	                	products_qty = database.getBestSellerProduct();
+    	                	Integer qty_sold = 0;
+    	                	
+    	                	for (Integer qty : products_qty.keySet()) {
+    	                		qty_sold = qty;
+    	                	}
+    	                	
+    	                	for (ArrayList<Product> products : products_qty.values()) {
+    	                		for (Product product : products) {
+    	                			pv.printProductInfo(product);
+        	                		System.out.println("Quantity sold: " + qty_sold);
+    	                		}
+    	                	}
+    	                	break;
+    	                }
+    	                case "9" -> {
+    	                	HashMap<Integer,ArrayList<Product>> products_qty = new HashMap<Integer,ArrayList<Product>>();
+    	                	products_qty = database.getLeastSellerProduct();
+    	                	Integer qty_sold = 0;
+    	                	
+    	                	for (Integer qty : products_qty.keySet()) {
+    	                		qty_sold = qty;
+    	                	}
+    	                	
+    	                	for (ArrayList<Product> products : products_qty.values()) {
+    	                		for (Product product : products) {
+    	                			pv.printProductInfo(product);
+        	                		System.out.println("Quantity sold: " + qty_sold);
+    	                		}
+    	                	}
+    	                	break;
+    	                }
+    	                case "10" -> {
+    	                	HashMap<Double,ArrayList<Product>> products_profit = new HashMap<Double,ArrayList<Product>>();
+    	                	products_profit = database.getMostProfictProduct();
+    	                	Double most_profit = 0.0;
+
+    	                	for (Double profit : products_profit.keySet()) {
+    	                		most_profit = profit;
+    	                	}
+    	                	
+    	                	for (ArrayList<Product> products : products_profit.values()) {
+    	                		for (Product product : products) {
+    	                			pv.printProductInfo(product);
+        	                		System.out.println("Profit: " + most_profit);
+    	                		}
+    	                	}
+    	                	
+    	                	break;
+    	                }
+    	                case "11" -> {
+    	                	HashMap<Double,ArrayList<Product>> products_profit = new HashMap<Double,ArrayList<Product>>();
+    	                	products_profit = database.getLeastProfictProduct();
+    	                	Double least_profit = 0.0;
+
+    	                	for (Double profit : products_profit.keySet()) {
+    	                		least_profit = profit;
+    	                	}
+    	                	
+    	                	for (ArrayList<Product> products : products_profit.values()) {
+    	                		for (Product product : products) {
+    	                			pv.printProductInfo(product);
+        	                		System.out.println("Profit: " + least_profit);
+    	                		}
+    	                	}
+    	                	break;
+    	                }
+    	                case "12" -> {
+    	                	HashMap<Integer,ArrayList<User>> user_with_most_order = new HashMap<Integer,ArrayList<User>>();
+    	                	user_with_most_order = database.getUserWithMostOrder();
+    	            		Integer qty_orders = 0;
+    	            		
+    	            		for (Integer qty : user_with_most_order.keySet()) {
+    	                		qty_orders = qty;
+    	                	}
+    	                	
+    	                	for (ArrayList<User> users : user_with_most_order.values()) {
+    	                		for (User user : users) {
+    	                			uv.printBasicUserInfo(user);
+        	                		System.out.println("Number of orders placed: " + qty_orders);
+    	                		}
+    	                	}
+    	                	break;
+    	                }
+    	                case "13" -> {
+    	                	HashMap<Integer,ArrayList<User>> user_with_least_order = new HashMap<Integer,ArrayList<User>>();
+    	                	user_with_least_order = database.getUserWithLeastOrder();
+    	            		Integer qty_orders = 0;
+    	            		
+    	            		for (Integer qty : user_with_least_order.keySet()) {
+    	                		qty_orders = qty;
+    	                	}
+    	                	
+    	                	for (ArrayList<User> users : user_with_least_order.values()) {
+    	                		for (User user : users) {
+    	                			uv.printBasicUserInfo(user);
+        	                		System.out.println("Number of orders placed: " + qty_orders);
+    	                		}
+    	                	}
+    	                	break;
+    	                }
+    	                case "100" -> {
                                 logged = false;
                                 user_id = null;
                                 System.out.println("Logout successfully!");
